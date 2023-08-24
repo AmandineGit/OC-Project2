@@ -1,0 +1,5 @@
+#Ignore l'environnement .env
+.env
+
+
+
