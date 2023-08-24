@@ -44,6 +44,7 @@ if response.ok:
         datas.insert(0,urlexo1)
         #récupération du title
         h1= soup.find('h1')
+
         #remplacement de Product_type par title
         entetes[2]='title'
         h1b = bs(h1.text, 'lxml').text
