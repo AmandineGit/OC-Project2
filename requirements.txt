@@ -7,3 +7,4 @@ request2==0.2
 requests==2.31.0
 soupsieve==2.4.1
 urllib3==2.0.4
+csv23==0.3.4
