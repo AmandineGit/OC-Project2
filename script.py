@@ -42,6 +42,7 @@ if response.ok:
         #intégration de l'URL et de son entête dans la liste
         entetes.insert(0,'product_page_url')
         datas.insert(0,urlexo1)
+
         #récupération du title
         h1= soup.find('h1')
 
@@ -49,8 +50,33 @@ if response.ok:
         entetes[2]='title'
         h1b = bs(h1.text, 'lxml').text
         datas[2]=h1b
-        print(entetes)
-        print(datas)
+        #print(entetes)
+        #print(datas)
+
+        #récupération de Product_description
+        ProdDesc = soup.findAll('p')
+        ProdDesc = ProdDesc[3]
+
+        #print(ProdDesc)
+
+        #Récupération de category
+        catego = soup.findAll('li')
+        catego = catego[2]
+        #print(catego)
+
+        #récupération de review_rating
+        rev_rat = soup.findAll('p')
+        #rev-rat2 = rev_rat.contents[2]
+        #rev_rat = rev_rat[2]
+
+
+        print(rev_rat)
+
+        #recupération de l'url de l'image
+        img = soup.img['src']
+
+        #print(img)
+        #Rassemblement des données et mise en forme
 
 
        #création du csv
