@@ -50,13 +50,11 @@ if response.ok:
         entetes[2]='title'
         h1b = bs(h1.text, 'lxml').text
         datas[2]=h1b
-        #print(entetes)
-        #print(datas)
+
 
         #récupération de Product_description
         ProdDesc = soup.findAll('p')
         ProdDesc = ProdDesc[3]
-
         #print(ProdDesc)
 
         #Récupération de category
@@ -67,24 +65,37 @@ if response.ok:
         #récupération de review_rating
         rev_rat = soup.findAll('p')
         #rev-rat2 = rev_rat.contents[2]
-        #rev_rat = rev_rat[2]
-
-
-        print(rev_rat)
+        rev_rat = rev_rat[2]
+        #print(rev_rat)
 
         #recupération de l'url de l'image
         img = soup.img['src']
-
         #print(img)
+
         #Rassemblement des données et mise en forme
+        entetes.insert(3, entetes[4])
+        entetes.pop(5)
+        datas.insert(3, datas[4])
+        datas.pop(5)
+
+        entetes.pop(5)
+        datas.pop(5)
+
+        entetes.pop(6)
+        datas.pop(6)
+
+        entetes.insert(6, 'product_description')
+        datas.insert(6, ProdDesc)
+
+        print(entetes)
+        print(datas)
 
 
        #création du csv
-'''       with open('nombres.csv', 'w') as CSV1livre :
+        '''with open('nombres.csv', 'w') as CSV1livre :
                 writer = csv.writer(CSV1livre)
                 headers = entetes
                 writer.writerow(headers)
                 data = datas
                 writer.writerow(data)
-    
-'''
+    '''
