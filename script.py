@@ -52,25 +52,31 @@ if response.ok:
         datas[2]=h1b
 
 
-        #récupération de Product_description
+        #récupération de Product_description, passage en string et suppression des balises
         ProdDesc = soup.findAll('p')
         ProdDesc = ProdDesc[3]
-        #print(ProdDesc)
+        ProdDesc = str(ProdDesc)
+        ProdDesc = ProdDesc[3:-4]
+        #print (ProdDesc)
 
         #Récupération de category
         catego = soup.findAll('li')
         catego = catego[2]
+        catego = catego.find('a')
+        catego = catego.text
         #print(catego)
 
         #récupération de review_rating
         rev_rat = soup.findAll('p')
-        #rev-rat2 = rev_rat.contents[2]
-        rev_rat = rev_rat[2]
+        rev_rat = rev_rat[2].attrs
+        rev_rat = rev_rat["class"]
+        rev_rat = rev_rat[1]
         #print(rev_rat)
 
         #recupération de l'url de l'image
         img = soup.img['src']
-        #print(img)
+        link_img = 'https://books.toscrape.com/' + img[6:]
+        #print(link_img)
 
         #Rassemblement des données et mise en forme
         entetes.insert(3, entetes[4])
@@ -87,15 +93,24 @@ if response.ok:
         entetes.insert(6, 'product_description')
         datas.insert(6, ProdDesc)
 
-        print(entetes)
-        print(datas)
+        entetes.insert(7, 'category')
+        datas.insert(7, catego)
+
+        entetes.insert(8, 'review_rating')
+        datas.insert(8, rev_rat )
+
+        entetes.insert(9, 'image_url')
+        datas.insert(9, link_img )
+
+        #print(entetes)
+        #print(datas)
 
 
        #création du csv
-        '''with open('nombres.csv', 'w') as CSV1livre :
+        with open('nombres.csv', 'w') as CSV1livre :
                 writer = csv.writer(CSV1livre)
                 headers = entetes
                 writer.writerow(headers)
                 data = datas
                 writer.writerow(data)
-    '''
+
