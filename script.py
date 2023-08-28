@@ -102,8 +102,8 @@ if response.ok:
         entetes.insert(9, 'image_url')
         datas.insert(9, link_img )
 
-        #print(entetes)
-        #print(datas)
+    #print(entetes)
+    #print(datas)
 
 
        #création du csv
