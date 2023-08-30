@@ -2,6 +2,8 @@ from bs4 import BeautifulSoup as bs
 import requests
 import csv23 as csv
 
+urlexo2 = input('Veuillez renseigner l URL du livre recherché : ')
+
 
 #definition de la fonction info_livre qui récupère les infos d'un livre dont l'url est rnseignée en paramètre
 def info_livre(urlexo2) :
@@ -17,6 +19,7 @@ def info_livre(urlexo2) :
         tds = soup.findAll('td')
 
         #extration des balises et création des objects de données
+        global entetes
         entetes = []
         for th in ths :
             th2 = bs(th.text, 'lxml').text
@@ -87,20 +90,21 @@ def info_livre(urlexo2) :
 
         entetes.insert(9, 'image_url')
         datas.insert(9, link_img )
+        str(entetes)
+        str(datas)
+        datasetentetes = entetes + datas
+        return datasetentetes
 
-        #print(entetes)
-        #print(datas)
-        # création du csv
-        with open('exo2.csv', 'w') as CSV1livre:
-            writer = csv.writer(CSV1livre)
-            headers = entetes
-            writer.writerow(headers)
-            data = datas
-            writer.writerow(data)
+# fonction de création d'un csv à partir des données retournées par info_livre(urlexo2)
+def csv_creation(datasetentetes):
+    with open('exo2.csv', 'w') as CSV1livre:
+        datas = info_livre(urlexo2)
+        datas_entetes = datas[0:10]
+        datas_livre = datas[10:21]
+        writer = csv.writer(CSV1livre)
+        headers = datas_entetes
+        writer.writerow(headers)
+        data = datas_livre
+        writer.writerow(data)
 
-info_livre('https://books.toscrape.com/catalogue/olio_984/index.html')
-
-
-
-
-
+csv_creation(info_livre(urlexo2))
