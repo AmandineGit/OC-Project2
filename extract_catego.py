@@ -1,16 +1,13 @@
 from bs4 import BeautifulSoup as bs
 import requests
 
-url = 'https://books.toscrape.com/'
-
-response = requests.get(url)
-#connection à la page contenant les données & récupération du code réponse de la page du produit et test / ok si code 200, sinon stop
-if response.ok:
-    # création de mon object soup
-    soup = bs(response.text, 'lxml')
-
-    #definition de la fonction recup_catego
-    def recup_catego(url) :
+#definition de la fonction recup_catego
+def recup_catego(url) :
+    response = requests.get(url)
+    # connection à la page contenant les données & récupération du code réponse de la page du produit et test / ok si code 200, sinon stop
+    if response.ok:
+        # création de mon object soup
+        soup = bs(response.text, 'lxml')
         # récupération des datas sous la balise a
         masoupdea = soup.findAll('a')
         # extraction de la partie href et ajout dans la liste link_catego
@@ -23,5 +20,28 @@ if response.ok:
         del (links_catego[50:])
         return links_catego
 
+def url_catego_livres(urls_catego):
+    for link_catego in links_catego :
+        # connection à la page contenant les données & récupération du code réponse de la page du produit et test / ok si code 200, sinon stop
+        response = requests.get(link_catego)
+        if response.ok:
+            # création de mon object soup
+            soup = bs(response.text, 'lxml')
+            # récupération des datas sous la balise h3
+            masoupdeh3 = soup.findAll('h3')
+            # extraction de la partie a, puis href
+            links_livre = []
+            for link_livre in masoupdeh3:
+                link_livre = link_livre.find('a')
+                link_livre = link_livre['href']
+                link_livre =
+                #ajout dans la liste links_livre
+                links_livre.append('https://books.toscrape.com/' + link_livre)
+        return print(link_livre)
 
-print(recup_catego('url'))
+#execution des fonctions
+links_catego = (recup_catego('https://books.toscrape.com/'))
+url_catego_livres(links_catego)
+
+
+#print(links_catego)
