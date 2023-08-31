@@ -9,7 +9,6 @@ if response.ok:
     # création de mon object soup
     soup = bs(response.text, 'lxml')
 
-
     #definition de la fonction recup_catego
     def recup_catego(url) :
         # récupération des datas sous la balise a
