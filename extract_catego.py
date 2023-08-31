@@ -20,7 +20,7 @@ def recup_catego(url) :
         del (links_catego[50:])
         return links_catego
 
-def url_catego_livres(urls_catego):
+def urls_catego_livres(urls_catego):
     for link_catego in links_catego :
         # connection à la page contenant les données & récupération du code réponse de la page du produit et test / ok si code 200, sinon stop
         response = requests.get(link_catego)
@@ -34,14 +34,18 @@ def url_catego_livres(urls_catego):
             for link_livre in masoupdeh3:
                 link_livre = link_livre.find('a')
                 link_livre = link_livre['href']
-                link_livre =
+                #construction de l'url fonctionnelle
+                link_livre_lst = list(link_livre)
+                del(link_livre_lst[:8])
+                link_livre = ''.join(link_livre_lst)
+
                 #ajout dans la liste links_livre
-                links_livre.append('https://books.toscrape.com/' + link_livre)
-        return print(link_livre)
+                links_livre.append('https://books.toscrape.com/catalogue' + link_livre)
+        return print(links_livre)
 
 #execution des fonctions
 links_catego = (recup_catego('https://books.toscrape.com/'))
-url_catego_livres(links_catego)
+urls_catego_livres(links_catego)
 
 
 #print(links_catego)
