@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup as bs
 import requests
 import csv23 as csv
 
+
 #Variables globales
 datas_entetes = []
 datas_content = []
