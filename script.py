@@ -1,10 +1,12 @@
+import os.path
+
 from bs4 import BeautifulSoup as bs
 import requests
 import csv23 as csv
 
 #Variables globales
 datas_entetes = []
-datas_livre = []
+datas_content = []
 urlexo2 = 'https://books.toscrape.com/catalogue/private-paris-private-10_958/index.html'
 #input('Veuillez renseigner l URL du livre recherché : '))
 nom_csv = 'fichier.csv'
@@ -27,17 +29,22 @@ def recup_catego(url):
         for a in masoupdea:
             link_catego = a['href']
             name_catego = a.text
+            name_catego = name_catego.lstrip("\n")
+            name_catego = name_catego.strip()
+            name_catego = name_catego.rstrip('\n')
             links_catego.append([name_catego, 'https://books.toscrape.com/' + link_catego])
         # suppression des données inutiles
         del (links_catego[0:3])
         del (links_catego[50:])
         list(links_catego)
-        print(links_catego)
 
-# definition de la fonction urls_catego_livres qui récupère les URLs des livres des catégories
+
+# definition de la fonction urls_catego_livres qui récupère les URLs des livres et leur catégorie
 def urls_catego_livres(links_catego):
     for i in range(len(links_catego)):
-        link = links_catego[i]
+        link_catego = links_catego[i]
+        link = link_catego[1]
+        catego_link = link_catego[0]
         # connection à la page contenant les données & récupération du code réponse de la page du produit et test / ok si code 200, sinon stop
         response = requests.get(link)
         if response.ok:
@@ -45,8 +52,8 @@ def urls_catego_livres(links_catego):
             soup = bs(response.content, 'lxml')
             # récupération des datas sous la balise h3
             masoupdeh3 = soup.findAll('h3')
-            print(masoupdeh3)
-# extraction de la partie a, puis href
+            #print(masoupdeh3)
+# extraction de la partie a, puis href et ajout de la catégorie
             global list_urls_catego_livres
             for links_catego[i] in masoupdeh3:
                 links_catego[i] = links_catego[i].find('a')
@@ -55,16 +62,9 @@ def urls_catego_livres(links_catego):
                 link_livre_lst = list(links_catego[i])
                 del (link_livre_lst[:8])
                 links_catego[i] = ''.join(link_livre_lst)
-                # ajout dans la liste links_livre
-                list_urls_catego_livres.append('https://books.toscrape.com/catalogue' + links_catego[i])
+                # ajout dans la liste list_urls_catego_livres de l'url des livres et de leur catégorie
+                list_urls_catego_livres.append((catego_link,('https://books.toscrape.com/catalogue' + links_catego[i])))
     print(list_urls_catego_livres)
-
-#pour chaque url de links_catego_livres j'execute csv_creation et les données s'ajoute dans le même fichier csv
-def csv_list_url_livres(liste):
-    for i in range(len(list_urls_catego_livres)) :
-        info_livre(list_urls_catego_livres[i])
-        csv_creation(info_livre(list_urls_catego_livres[i]), nom_csv)
-
 
 
 #definition de la fonction info_livre qui récupère les infos d'un livre dont l'url est rnseignée en paramètre
@@ -152,23 +152,49 @@ def info_livre(urlexo2) :
         entetes.insert(9, 'image_url')
         datas.insert(9, link_img )
         global datas_entetes
-        global datas_livre
+        global datas_content
         datas_entetes = entetes
-        datas_livre = datas
+        datas_content = datas
 
 # fonction de création d'un csv à partir des données retournées par info_livre(urlexo2)
-def csv_creation(datasetentetes , nom_csv):
-    with open(nom_csv, 'a') as CSV1livre:
-        writer = csv.writer(CSV1livre)
-        headers = datas_entetes
-        writer.writerow(headers)
-        data = datas_livre
-        writer.writerow(data)
-        CSV1livre.close()
+def csv_creation(datas_entetesetdatas_content , nom_csv):
+        if os.path.exists(nom_csv) :
+            with open(nom_csv, 'a') as CSV1livre:
+                writer = csv.writer(CSV1livre)
+                data = datas_content
+                writer.writerow(data)
+                CSV1livre.close()
+        else :
+            with open(nom_csv, 'w') as CSV1livre:
+                writer = csv.writer(CSV1livre)
+                headers = datas_entetes
+                writer.writerow(headers)
+                data = datas_content
+                writer.writerow(data)
+                CSV1livre.close()
+''' Test avec liste d'urls réduide
+liste =[]
+liste.append(('Crime1', 'https://books.toscrape.com/catalogue/the-long-shadow-of-small-ghosts-murder-and-memory-in-an-american-city_848/index.html'))
+liste.append(('Travel1', 'https://books.toscrape.com/catalogue/full-moon-over-noahs-ark-an-odyssey-to-mount-ararat-and-beyond_811/index.html'))
+list_urls_catego_livres = liste'''
 
-#execution des fonctions
+#pour chaque url de links_catego_livres j'execute info_livre puius csv_creation et les données s'ajoute dans le même fichier csv
+def csv_datas_livresbycatego(liste):
+    for i in range(len(liste)) :
+        occurence = (liste[i])
+        catego = occurence[0]
+        url = occurence[1]
+        global nom_csv
+        nom_csv = 'catego' + '_'+ catego +'.csv'
+        csv_creation(info_livre(url), nom_csv)
+
+
+
+#execution des fonctions - test unitaires
+#info_livre(urlexo2)
+#print(urlexo2)
+#csv_creation(datas_entetes , datas_content , nom_csv)
 recup_catego(url)
-#urls_catego_livres(links_catego)
-#csv_list_url_livres(list_urls_catego_livres)
-
+urls_catego_livres(links_catego)
+csv_datas_livresbycatego(list_urls_catego_livres)
 
