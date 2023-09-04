@@ -33,7 +33,7 @@ def recup_catego(url):
         del (links_catego[50:])
         list(links_catego)
         print(links_catego)
-
+#
 # definition de la fonction urls_catego_livres qui récupère les URLs des livres des catégories
 def urls_catego_livres(links_catego):
     for i in range(len(links_catego)):
