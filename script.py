@@ -19,20 +19,22 @@ def recup_catego(url):
     # connection à la page contenant les données & récupération du code réponse de la page du produit et test / ok si code 200, sinon stop
     if response.ok:
         # création de mon object soup
-        soup = bs(response.text, 'lxml')
+        soup = bs(response.content, 'lxml')
         # récupération des datas sous la balise a
         masoupdea = soup.findAll('a')
-        # extraction de la partie href et ajout dans la liste link_catego
+        # extraction de la partie href et ajout dans la liste links_catego sous forme de liste en position [1]et le nom de la catégorie en [0]
         global links_catego
         for a in masoupdea:
             link_catego = a['href']
-            links_catego.append('https://books.toscrape.com/' + link_catego)
+            name_catego = a.text
+            links_catego.append([name_catego, 'https://books.toscrape.com/' + link_catego])
         # suppression des données inutiles
         del (links_catego[0:3])
         del (links_catego[50:])
         list(links_catego)
+        print(links_catego)
 
-
+# definition de la fonction urls_catego_livres qui récupère les URLs des livres des catégories
 def urls_catego_livres(links_catego):
     for i in range(len(links_catego)):
         link = links_catego[i]
@@ -40,11 +42,11 @@ def urls_catego_livres(links_catego):
         response = requests.get(link)
         if response.ok:
             # création de mon object soup
-            soup = bs(response.text, 'lxml')
-
+            soup = bs(response.content, 'lxml')
             # récupération des datas sous la balise h3
             masoupdeh3 = soup.findAll('h3')
-            # extraction de la partie a, puis href
+            print(masoupdeh3)
+# extraction de la partie a, puis href
             global list_urls_catego_livres
             for links_catego[i] in masoupdeh3:
                 links_catego[i] = links_catego[i].find('a')
@@ -53,12 +55,11 @@ def urls_catego_livres(links_catego):
                 link_livre_lst = list(links_catego[i])
                 del (link_livre_lst[:8])
                 links_catego[i] = ''.join(link_livre_lst)
-
                 # ajout dans la liste links_livre
                 list_urls_catego_livres.append('https://books.toscrape.com/catalogue' + links_catego[i])
     print(list_urls_catego_livres)
 
-#pour chaque url de links_catego_livres j'execute csv_creation, mais il faut voir pour ajouter et non créer à chaque fois
+#pour chaque url de links_catego_livres j'execute csv_creation et les données s'ajoute dans le même fichier csv
 def csv_list_url_livres(liste):
     for i in range(len(list_urls_catego_livres)) :
         info_livre(list_urls_catego_livres[i])
@@ -73,7 +74,7 @@ def info_livre(urlexo2) :
     if response.ok:
 
         #création de mon object soup
-        soup = bs(response.text, 'lxml')
+        soup = bs(response.content, 'lxml')
 
         #sélection des données voulues
         ths = soup.findAll('th')
@@ -167,7 +168,7 @@ def csv_creation(datasetentetes , nom_csv):
 
 #execution des fonctions
 recup_catego(url)
-urls_catego_livres(links_catego)
-csv_list_url_livres(list_urls_catego_livres)
+#urls_catego_livres(links_catego)
+#csv_list_url_livres(list_urls_catego_livres)
 
 
