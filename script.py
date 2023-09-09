@@ -183,10 +183,10 @@ def csv_datas_livresbycatego(liste):
     for i in range(len(liste)) :
         occurence = (liste[i])
         catego = occurence[0]
-        url = occurence[1]
+        url_livre = occurence[1]
         global nom_csv
         nom_csv = 'catego' + '_'+ catego +'.csv'
-        csv_creation(info_livre(url), nom_csv)
+        csv_creation(info_livre(url_livre), nom_csv)
 
 
 
