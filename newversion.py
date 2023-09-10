@@ -35,10 +35,40 @@ def recup_catego(url):
         del (nameLinks_catego[50:])
         list(nameLinks_catego)
 # Test unitaire de la fontion retirer le # pour executer le print
-        #print(nameLinks_catego)
+        # print(nameLinks_catego)
         print('urls des différentes catégories - Extraction : terminé')
 
-#def recup_url_livre(list_urls):
+
+def recup_urlAllCatego(list_urls):
+    for i in range(50):
+        p = 1
+        namelink = list_urls[i]
+        link = (namelink[1])[:-10]
+        name = (namelink[0])
+        nextlink = link + 'page' + str(p) + '.html'
+        if i == 0:
+            nameLinks_Allcatego = list_urls
+            print('liste_urls chargée')
+            p = p + 1
+            nameLinks_Allcatego.append([name, nextlink])
+            print('IF : liste complétée avec : '+nextlink)
+            while p <= 10:
+                p = p + 1
+                nextlink2 = link + 'page' + str(p) + '.html'
+                nameLinks_Allcatego.append([name, nextlink2])
+                print('WHILE : liste complétée 2 avec : '+nextlink2)
+
+        else:
+            nameLinks_Allcatego.append([name, nextlink])
+            print('ELSE : liste complétée avec : '+nextlink)
+            while p <= 10:
+                p = p + 1
+                nextlink2 = link + 'page' + str(p) + '.html'
+                nameLinks_Allcatego.append([name, nextlink2])
+                print('WHILE : liste complétée 2 avec : '+nextlink2)
+
+        print(len(nameLinks_Allcatego))
+
 
 recup_catego(url)
-#recup_url_livre
+recup_urlAllCatego(nameLinks_catego)
