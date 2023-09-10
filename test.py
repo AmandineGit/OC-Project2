@@ -15,6 +15,9 @@ links_catego = []
 url = 'https://books.toscrape.com/'
 catego_link = []
 link = 'a'
+page_suiv = ''
+next =''
+link2 = ''
 
 
 
@@ -51,71 +54,52 @@ def recup_catego(url):
 
 # definition de la fonction qui récupère les URLs des livres et leur catégorie avec recup_urls_livresbypage
 def urls_catego_livres(links_catego):
-# iteration sur les catégories et recup des urls des livres de la page index
-    y = 0
+# iteration sur les catégories et recup des urls des livres de la page index creation de link et catego_link
     for i in range(len(links_catego)):
         link_catego = links_catego[i]
-        print(link_catego)
         global link
         link = link_catego[1]
         global catego_link
         catego_link = link_catego[0]
     # connection à la page catégorie index & récupération de list_urls_catego_livres
-
         recup_urls_livresbypage(link, catego_link)
-        print(len(list_urls_catego_livres))
-    # cherche un bouton next et prepare l'url de la page 2
-        response = requests.get(link)
-        soup = bs(response.content, 'lxml')
-        masoupdeli = soup.findAll('li')
-        masoupdeli = masoupdeli
-        li = masoupdeli[-1]
-        next = li.a.text
-        print(next)
-        page_suiv = li.a
-        page_suiv = page_suiv['href']
-        catego_link = catego_link.replace(" ", "")
-        page_suiv = 'https://books.toscrape.com/' + 'catalogue/category/books/' + catego_link.lower() + "/" + page_suiv
+        next=search_next(link)
+        print('1er test, next : ', next)
+        print('1er test, link : ', link)
+        print('1er test, link2 : ', link2)
 
-
-    # si next = next alors recup ses urls de livres
+    # si next = next alors recup des urls de livres de la page et retourne next et l'url suivante dans link
         while next =='next':
-
-            recup_urls_livresbypage(page_suiv,catego_link)
-            response = requests.get(page_suiv)
-            soup = bs(response.content, 'lxml')
-            masoupdeli2 = soup.findAll('li')
-
-        # si c'est la page 2
-            if y == 0:
-            # test s'il existe un bouton next sur la page suiv si oui renvoi la valeur next dans la variable next
-                soup2 = bs(response.content, 'lxml')
-                masoupdeli2 = soup2.findAll('li')
-                masoupdeli3 = masoupdeli2
-                masoupdeli2 = masoupdeli
-                li2 = masoupdeli2[-1]
-                li2=li2.text
-                print(li2)
-                next=li2
-                print(next)
-                y=y+1
-        # s'il s'agit d'une page x+2
-            else:
-                li3 = masoupdeli3[-1]
-                li3 = li3.text
-                print(li3)
-                next = li3
-                print(next, 'else')
-                if 'next' in next:
-                    page_suiv2 = li3.a
-                    page_suiv2 = page_suiv2['href']
-                    catego_link = catego_link.replace(" ", "")
-                    page_suiv='https://books.toscrape.com/' + 'catalogue/category/books/' + catego_link.lower() + "/" + page_suiv2
-                    print(page_suiv,'test')
+            # cherche un bouton next et prepare l'url de la page 2
+            recup_urls_livresbypage(link2,catego_link)
+            print('Page ',link2,' ajoutée, la liste fait maitenant : ',len(list_urls_catego_livres),' caractère(s)')
+            next = search_next(link2)
+            print('2nd test next = ',next)
+            print('2nd test link = ',link2)
 
 
         else :
-            print((len(list_urls_catego_livres)),'test else')
+            print('La liste ',catego_link,' fait maintenant : ',(len(list_urls_catego_livres)),' caractères(s)')
+
+def search_next(page):
+    response = requests.get(page)
+    soup = bs(response.content, 'lxml')
+    masoupdeli = soup.findAll('li')
+    soup2 = bs(response.content, 'lxml')
+    masoupdeli2 = soup.findAll('li')
+    li = masoupdeli[-1]
+    li=li.text
+    if li ==('next'):
+        global next
+        global link2
+        next = li
+        li2 = masoupdeli2[-1]
+        link2 = li2.a
+        link2 = link2['href']
+        global catego_link
+        catego_link = catego_link.replace(" ", "")
+        link2 = 'https://books.toscrape.com/' + 'catalogue/category/books/' + catego_link.lower() + "/" + link2
+        return(next)
 
 
 # création de mon object soup pour récupérer les urls des livres d'une page de catégorie
@@ -138,20 +122,8 @@ def recup_urls_livresbypage(link, catego_link):
         list_urls_catego_livres.append((catego_link, ['https://books.toscrape.com/catalogue' + link_catego]))
 
 
+#catego_link = 'sequential-art_5'
 recup_catego(url)
 urls_catego_livres(links_catego)
+#link2,next=search_next('https://books.toscrape.com/catalogue/category/books/sequential-art_5/page-3.html')
 
-'''while li2 == 'next':
-    print('yes')
-    page_suiv = li2.a
-    page_suiv = page_suiv['href']
-    catego_link = catego_link.replace(" ", "")
-    page_suiv = 'https://books.toscrape.com/'+'catalogue/category/books/'+catego_link.lower()+"/"+page_suiv
-    recup_urls_livresbypage(page_suiv,catego_link)
-    response = requests.get(page_suiv)
-    soup = bs(response.content, 'lxml')
-    masoupdeli2 = soup.findAll('li')
-    print(masoupdeli2)
-    #li2 = masoupdeli2[-1]
-    li2=li2.text
-    print(li2,'testli2')'''
