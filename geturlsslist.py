@@ -66,7 +66,7 @@ def recup_urlallpages(list_urls):
         nextlink = link + 'page-' + str(p) + '.html'
         nameLinks_allpages.append([name, nextlink])
         # print('Liste ', name , 'complétée avec : ' , 'la page' , p , nextlink)
-        while p <= 5:
+        while p <= 7:
             p = p + 1
             nextlink2 = link + 'page-' + str(p) + '.html'
             nameLinks_allpages.append([name, nextlink2])
@@ -81,29 +81,38 @@ def recup_urlallpages(list_urls):
 # definition de la fonction urls_catego_livres qui récupère les URLs des livres et leur catégorie pour chaque page
 def urls_catego_livres(links_catego):
     global namelinks_allbooks
+    exist = 'y'
+    categooflink = 'Travel_2'
+    categooflinkPrec = ''
     for i in range(len(links_catego)):
         link_catego = links_catego[i]
         link = link_catego[1]
         categooflink = link_catego[0]
-        # connection à la page contenant les données & récupération du code réponse de la page du produit et test
-        response = requests.get(link)
-        if response.ok:
-            # création de mon object soup
-            soup = bs(response.content, 'lxml')
-            # récupération des datas sous la balise h3
-            masoupdeh3 = soup.findAll('h3')
-# extraction de la partie a, puis href et ajout de la catégorie
+        if exist == 'y' or categooflink != categooflinkPrec:
+            # connection à la page contenant les données & récupération du code réponse de la page du produit et test
+            response = requests.get(link)
+            if response.ok:
+                # création de mon object soup
+                soup = bs(response.content, 'lxml')
+                # récupération des datas sous la balise h3
+                masoupdeh3 = soup.findAll('h3')
+                exist = 'y'
+    # extraction de la partie a, puis href et ajout de la catégorie
 
-            for links_catego[i] in masoupdeh3:
-                links_catego[i] = links_catego[i].find('a')
-                links_catego[i] = links_catego[i]['href']
-                # construction de l'url fonctionnelle
-                link_livre_lst = list(links_catego[i])
-                del (link_livre_lst[:8])
-                links_catego[i] = ''.join(link_livre_lst)
-                # ajout dans la liste namelinks_allbooks de l'url des livres et de leur catégorie
-                namelinks_allbooks.append([categooflink, ('https://books.toscrape.com/catalogue' + links_catego[i])])
-                print('Dans : ', categooflink, ' ajout de : ', ('https://books.toscrape.com/catalogue' + links_catego[i]))
+                for links_catego[i] in masoupdeh3:
+                    links_catego[i] = links_catego[i].find('a')
+                    links_catego[i] = links_catego[i]['href']
+                    # construction de l'url fonctionnelle
+                    link_livre_lst = list(links_catego[i])
+                    del (link_livre_lst[:8])
+                    links_catego[i] = ''.join(link_livre_lst)
+                    # ajout dans la liste namelinks_allbooks de l'url des livres et de leur catégorie
+                    namelinks_allbooks.append([categooflink, ('https://books.toscrape.com/catalogue' + links_catego[i])])
+                    print('Il y a maintenant ',len(namelinks_allbooks) , ' URLs de books dans la liste')
+            else:
+                print('XXX La page : ', link, 'n existe pas.')
+                exist = 'n'
+                categooflinkPrec = categooflink
     print('4. La liste comporte maintenant les url(s) de :', len(namelinks_allbooks), 'book(s)')
     return namelinks_allbooks
 
@@ -124,7 +133,11 @@ def csv_creation(datas, nom_csv):
 
 
 # ------------------- Lancement du programme -----------------------------#
-csv_creation(urls_catego_livres(recup_urlallpages(recup_catego(url))), 'nameLinks_allpages.csv')
+if os.path.exists('nameLinks_allpages.csv'):
+    print('Le fichier nameLinks_allpages.csv existe déjà, veuillez le supprimer ou le renommer avant de relancer')
+    exit()
+else:
+    csv_creation(urls_catego_livres(recup_urlallpages(recup_catego(url))), 'nameLinks_allpages.csv')
 
 
 # ---------------------- Test unitaires ----------------------------------#
