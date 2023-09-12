@@ -1,129 +1,83 @@
-import os.path
-
 from bs4 import BeautifulSoup as bs
 import requests
-import csv23 as csv
+
 
 # Variables globales
-datas_entetes = []
+datas_entetes = ['product_page_url', 'UPC', 'title', 'Price (incl. tax)', 'Price (excl. tax)', 'Availability,product_description','category', 'review_rating', 'image_url']
 datas_content = []
-urlexo2 = 'https://books.toscrape.com/catalogue/private-paris-private-10_958/index.html'
-# input('Veuillez renseigner l URL du livre recherché : '))
 nom_csv = 'fichier.csv'
-list_urls_catego_livres = []
-links_catego = []
-url = 'https://books.toscrape.com/'
-catego_link = []
-link = 'a'
-page_suiv = ''
-next =''
-link2 = ''
 
 
-
-# definition de la fonction recup_catego qui récupère les URLs des catégories
-def recup_catego(url):
-    response = requests.get(url)
-    # connection à la page contenant les données & récupération du code réponse et test / ok si code 200, sinon stop
+def info_livre(urlexo2):
+    # definition de la fonction info_livre qui récupère les infos d'un livre dont l'url est rnseignée en paramètre
+    # connection à la page contenant les données & récupération du code réponse de la page du produit et test si ok
+    response = requests.get(urlexo2)
     if response.ok:
+
         # création de mon object soup
         soup = bs(response.content, 'lxml')
-        # récupération des datas sous la balise a
-        masoupdea = soup.findAll('a')
-        # extraction de la partie href
-        # ajout dans la liste links_catego sous forme de liste en position [1]et le nom de la catégorie en [0]
-        global links_catego
-        i=-2
-        for a in masoupdea:
-            i=i+1
-            istr = str(i)
-            link_catego = a['href']
-            name_catego = a.text
-            name_catego = name_catego.lstrip("\n")
-            name_catego = name_catego.strip()
-            name_catego = name_catego.rstrip('\n')
-            name_catego = name_catego+'_'+istr
-            links_catego.append([name_catego, 'https://books.toscrape.com/' + link_catego])
-        # suppression des données inutiles
-        del (links_catego[0:3])
-        del (links_catego[50:])
-        list(links_catego)
-        # print(links_catego)
-        print('urls des différentes catégories - Extraction : terminé')
+
+        # sélection des données voulues
+        tds = soup.findAll('td')
+
+        # extration des balises et création des objects de données
+        datas = []
+        for td in tds:
+            td2 = bs(td.text, 'lxml').text
+            datas.append(td2)
+        # intégration de l'URL dans la liste
+        datas.insert(0, urlexo2)
+        # récupération du title
+        h1 = soup.find('h1')
+
+        # remplacement de Product_type par title
+        h1b = bs(h1.text, 'lxml').text
+        datas[2] = h1b
+
+        # récupération de Product_description, passage en string et suppression des balises
+        proddesc = soup.findAll('p')
+        proddesc = proddesc[3]
+        proddesc = str(proddesc)
+        proddesc = proddesc[3:-4]
+        # print (proddesc)
+
+        # Récupération de category
+        catego = soup.findAll('li')
+        catego = catego[2]
+        catego = catego.find('a')
+        catego = catego.text
+        # print(catego)
+
+        # récupération de review_rating
+        rev_rat = soup.findAll('p')
+        rev_rat = rev_rat[2].attrs
+        rev_rat = rev_rat["class"]
+        rev_rat = rev_rat[1]
+        # print(rev_rat)
+
+        # recupération de l'url de l'image
+        img = soup.img['src']
+        link_img = 'https://books.toscrape.com/' + img[6:]
+        # print(link_img)
+
+        # Rassemblement des données et mise en forme
+        datas.insert(3, datas[4])
+        datas.pop(5)
+        datas.pop(5)
+        datas.pop(6)
+        datas.insert(6, proddesc)
+        datas.insert(7, catego)
+        datas.insert(8, rev_rat)
+        datas.insert(9, link_img)
+        global datas_content
+        datas_content = datas
+        return datas_content
+    else:
+        print('response not ok for : ' + urlexo2)
 
 
-# definition de la fonction qui récupère les URLs des livres et leur catégorie avec recup_urls_livresbypage
-def urls_catego_livres(links_catego):
-# iteration sur les catégories et recup des urls des livres de la page index creation de link et catego_link
-    for i in range(len(links_catego)):
-        link_catego = links_catego[i]
-        global link
-        link = link_catego[1]
-        global catego_link
-        catego_link = link_catego[0]
-    # connection à la page catégorie index & récupération de list_urls_catego_livres
-        recup_urls_livresbypage(link, catego_link)
-        next=search_next(link)
-        print('1er test, next : ', next)
-        print('1er test, link : ', link)
-        print('1er test, link2 : ', link2)
-
-    # si next = next alors recup des urls de livres de la page et retourne next et l'url suivante dans link
-        while next =='next':
-            # cherche un bouton next et prepare l'url de la page 2
-            recup_urls_livresbypage(link2,catego_link)
-            print('Page ',link2,' ajoutée, la liste fait maitenant : ',len(list_urls_catego_livres),' caractère(s)')
-            next = search_next(link2)
-            print('2nd test next = ',next)
-            print('2nd test link = ',link2)
-
-
-        else :
-            print('La liste ',catego_link,' fait maintenant : ',(len(list_urls_catego_livres)),' caractères(s)')
-
-def search_next(page):
-    response = requests.get(page)
-    soup = bs(response.content, 'lxml')
-    masoupdeli = soup.findAll('li')
-    soup2 = bs(response.content, 'lxml')
-    masoupdeli2 = soup.findAll('li')
-    li = masoupdeli[-1]
-    li=li.text
-    if li ==('next'):
-        global next
-        global link2
-        next = li
-        li2 = masoupdeli2[-1]
-        link2 = li2.a
-        link2 = link2['href']
-        global catego_link
-        catego_link = catego_link.replace(" ", "")
-        link2 = 'https://books.toscrape.com/' + 'catalogue/category/books/' + catego_link.lower() + "/" + link2
-        return(next)
-
-
-# création de mon object soup pour récupérer les urls des livres d'une page de catégorie
-def recup_urls_livresbypage(link, catego_link):
-    response = requests.get(link)
-    print(link)
-    soup = bs(response.content, 'lxml')
-    # récupération des datas sous la balise h3
-    masoupdeh3 = soup.findAll('h3')
-    # extraction de la partie a, puis href et ajout de la catégorie
-    global list_urls_catego_livres
-    for link_catego in masoupdeh3:
-        link_catego = link_catego.find('a')
-        link_catego = link_catego['href']
-        # construction de l'url fonctionnelle
-        link_livre_lst = list(link_catego)
-        del (link_livre_lst[:8])
-        link_catego = ''.join(link_livre_lst)
-        # ajout dans la liste list_urls_catego_livres de l'url des livres et de leur catégorie
-        list_urls_catego_livres.append((catego_link, ['https://books.toscrape.com/catalogue' + link_catego]))
-
-
-#catego_link = 'sequential-art_5'
-recup_catego(url)
-urls_catego_livres(links_catego)
-#link2,next=search_next('https://books.toscrape.com/catalogue/category/books/sequential-art_5/page-3.html')
-
+# execution de info_livre avec une url
+urlexo2 = 'https://books.toscrape.com/catalogue/sharp-objects_997/index.html'
+print(info_livre(urlexo2))
+print(datas_entetes)
+print(datas_content)
