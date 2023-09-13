@@ -1,5 +1,6 @@
 #Ignore l'environnement .env
 .env
-
-#Ignore les fichiers csv et les rÃpertoires
+#ignore test.py
+test.py
+#Ignore les fichiers csv et les rï¿½pertoires
 *.csv
