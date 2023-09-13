@@ -1,9 +1,5 @@
 from bs4 import BeautifulSoup as bs
 import requests
-import csv23 as csv
-import os.path
-import json
-
 
 # Variables globales
 nameLinks_catego = []
@@ -105,7 +101,7 @@ def urls_catego_livres(links_catego):
                     del (link_livre_lst[:8])
                     links_catego[i] = ''.join(link_livre_lst)
                     # ajout dans la liste namelinks_allbooks de l'url des livres et de leur catégorie
-                    namelinks_allbooks.append([categooflink, ('https://books.toscrape.com/catalogue'+ links_catego[i])])
+                    namelinks_allbooks.append([categooflink, ('https://books.toscrape.com/catalogue' + links_catego[i])])
                     print('Il y a maintenant ', len(namelinks_allbooks), ' URLs de books dans la liste')
             else:
                 print('XXX La page : ', link, 'n existe pas.')
@@ -153,4 +149,3 @@ def csv_allurlsbooks(urlsite):
 # Variable pour test unitaire
 # listetest = [['mystery_3', 'https://books.toscrape.com/catalogue/category/books/mystery_3/page-2.html'], ['travel_2', 'https://books.toscrape.com/catalogue/category/books/travel_2/index.html']]
 # csv_creation(urls_catego_livres(listetest), 'nameLinks_allpages.csv')
-

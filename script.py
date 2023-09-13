@@ -3,7 +3,6 @@ from bs4 import BeautifulSoup as bs
 import requests
 import csv23 as csv
 import geturlsslist
-import json
 
 # Variables globales
 datas_entete = ['product_page_url', 'UPC', 'title', 'Price (incl. tax)', 'Price (excl. tax)', 'Availability,product_description', 'category', 'review_rating', 'image_url']
@@ -12,7 +11,6 @@ nom_csv = 'fichier.csv'
 url = 'https://books.toscrape.com/'
 list_urls_catego_livres = []
 compteur = 0
-
 
 
 def info_livre(urlexo2):
@@ -85,26 +83,24 @@ def info_livre(urlexo2):
 
 def csv_creationwithentete(entete, datas, name_csv):
     # fonction de création d'un csv à partir des données retournées par info_livre(urlexo2)
-        if os.path.exists(nom_csv):
-            with open(name_csv, 'a') as CSV1livre:
-                writer = csv.writer(CSV1livre)
-                data = datas
-                writer.writerow(data)
-                CSV1livre.close()
-            print('Le fichier CSV : ', nom_csv, ' a été mis à jour.')
-        else:
-            global compteur
-            with open(name_csv, 'w') as CSV1livre:
-                writer = csv.writer(CSV1livre)
-                headers = entete
-                writer.writerow(headers)
-                data = datas
-                writer.writerow(data)
-                CSV1livre.close()
-            compteur = compteur + 1
-            print('Le fichier CSV : ', nom_csv, ' a été crée.')
-
-
+    if os.path.exists(nom_csv):
+        with open(name_csv, 'a') as CSV1livre:
+            writer = csv.writer(CSV1livre)
+            data = datas
+            writer.writerow(data)
+            CSV1livre.close()
+        print('Le fichier CSV : ', nom_csv, ' a été mis à jour.')
+    else:
+        global compteur
+        with open(name_csv, 'w') as CSV1livre:
+            writer = csv.writer(CSV1livre)
+            headers = entete
+            writer.writerow(headers)
+            data = datas
+            writer.writerow(data)
+            CSV1livre.close()
+        compteur = compteur + 1
+        print('Le fichier CSV : ', nom_csv, ' a été crée.')
 
 
 # pour chaque url de links_catego_livres j'execute info_livre puius csv_creation et les données s'ajoute dans le même fichier csv
@@ -120,16 +116,15 @@ def csv_datas_livresbycatego():
         nom_csv = 'catego' + '_' + catego + '.csv'
         print('le lien est : ', url_livre)
         csv_creationwithentete(datas_entete, info_livre(url_livre), nom_csv)
-        global compteur
+    global compteur
     print(compteur, 'fichiers CSV ont été crées.')
 
 
-
-#------------------- Lancement du programme -----------------------------#
+# ------------------- Lancement du programme -----------------------------#
 geturlsslist.urls_catego_livres(geturlsslist.recup_urlallpages(geturlsslist.recup_catego(url)))
 csv_datas_livresbycatego()
 
-#---------------------- Test unitaires ----------------------------------#
+# ---------------------- Test unitaires ----------------------------------#
 
 # execution de info_livre avec une url
 # urlexo2 = 'https://books.toscrape.com/catalogue/sharp-objects_997/index.html'
