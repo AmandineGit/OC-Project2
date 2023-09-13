@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup as bs
 import requests
 import csv23 as csv
 import geturlsslist
+import json
 
 # Variables globales
 datas_entete = ['product_page_url', 'UPC', 'title', 'Price (incl. tax)', 'Price (excl. tax)', 'Availability,product_description', 'category', 'review_rating', 'image_url']
@@ -10,6 +11,8 @@ datas_content = []
 nom_csv = 'fichier.csv'
 url = 'https://books.toscrape.com/'
 list_urls_catego_livres = []
+compteur = 0
+
 
 
 def info_livre(urlexo2):
@@ -80,59 +83,76 @@ def info_livre(urlexo2):
         print('response not ok for : ' + urlexo2)
 
 
-def csv_creationwithentete(entete, data, name_csv):
+def csv_creationwithentete(entete, datas, name_csv):
     # fonction de création d'un csv à partir des données retournées par info_livre(urlexo2)
         if os.path.exists(nom_csv):
             with open(name_csv, 'a') as CSV1livre:
                 writer = csv.writer(CSV1livre)
-                data = data
+                data = datas
                 writer.writerow(data)
                 CSV1livre.close()
+            print('Le fichier CSV : ', nom_csv, ' a été mis à jour.')
         else:
+            global compteur
             with open(name_csv, 'w') as CSV1livre:
                 writer = csv.writer(CSV1livre)
                 headers = entete
                 writer.writerow(headers)
-                data = data
+                data = datas
                 writer.writerow(data)
                 CSV1livre.close()
+            compteur = compteur + 1
+            print('Le fichier CSV : ', nom_csv, ' a été crée.')
+
 
 
 
 # pour chaque url de links_catego_livres j'execute info_livre puius csv_creation et les données s'ajoute dans le même fichier csv
-def csv_datas_livresbycatego(liste):
-    for i in range(len(liste)):
-        occurence = (liste[i])
-        catego = occurence[0]
-        url_livre = occurence[1]
+def csv_datas_livresbycatego():
+    liste = geturlsslist.namelinks_allbooks
+# decommenter si besoin de test sur une liste restreinte
+# liste = listetest
+    for line in range(len(liste)):
+        listline = liste[line]
+        catego = listline[0]
+        url_livre = listline[1]
         global nom_csv
         nom_csv = 'catego' + '_' + catego + '.csv'
-        # print('nom csv : ', nom_csv)
-        # print('le lien est : ', url_livre)
+        print('le lien est : ', url_livre)
         csv_creationwithentete(datas_entete, info_livre(url_livre), nom_csv)
+        global compteur
+    print(compteur, 'fichiers CSV ont été crées.')
+
+
 
 #------------------- Lancement du programme -----------------------------#
-# csv_datas_livresbycatego(geturlsslist.recup_urlallcatego(geturlsslist.recup_catego(url)))
+geturlsslist.urls_catego_livres(geturlsslist.recup_urlallpages(geturlsslist.recup_catego(url)))
+csv_datas_livresbycatego()
 
 #---------------------- Test unitaires ----------------------------------#
 
 # execution de info_livre avec une url
 # urlexo2 = 'https://books.toscrape.com/catalogue/sharp-objects_997/index.html'
 # info_livre(urlexo2)
-# print(datas_entetes)
+# print(datas_entete)
 # print(datas_content)
 
-# execution de csv_creation avec un echantillon dans le fichier nommé fichier.csv
-# datas_entetes = ('product_page_url', 'UPC,title', 'Price (incl. tax)')
-# datas_content = ('https://books.toscrape.com/catalogue/sharp-objects_997/index.html', 'e00eb4fd7b871a48', 'Sharp Objects', '£47.82')
-# csv_creationwithentete(datas_entete , datas_content , nom_csv)
+# execution de csv_creation avec un echantillon
+# entete = ('product_page_url', 'UPC,title', 'Price (incl. tax)')
+# datas = ('https://books.toscrape.com/catalogue/sharp-objects_997/index.html', 'e00eb4fd7b871a48', 'Sharp Objects', '£47.82')
+# csv_creationwithentete(entete, datas, name_csv)
 
-# execution de recup_urlallcatego depuis script.py
-# print(geturlsslist.recup_urlallcatego(geturlsslist.recup_catego(url)))
+# execution de urls_catego_livres depuis script.py pour charger la variable namelinks_allbooks ou la fournir en retour
+# geturlsslist.urls_catego_livres(geturlsslist.recup_urlallpages(geturlsslist.recup_catego(url)))
 
-# execution de csv_datas_livresbycatego
+# execution de csv_datas_livresbycatego avec un echantillon
 # listetest = [['mystery_3', 'https://books.toscrape.com/catalogue/sharp-objects_997/index.html'],['travel_2', 'https://books.toscrape.com/catalogue/full-moon-over-noahs-ark-an-odyssey-to-mount-ararat-and-beyond_811/index.html']]
-# csv_datas_livresbycatego(listetest)
 # les print sont à de-commenter dans la boucle dans la boucle
 # print('nom csv : ', nom_csv)
 # print('le lien est : ',url_livre)
+
+# execution de info_livre avec une url de test
+# urlexo2 = 'https://books.toscrape.com/catalogue/sharp-objects_997/index.html'
+# print(info_livre(urlexo2))
+# print(datas_entetes)
+# print(datas_content)

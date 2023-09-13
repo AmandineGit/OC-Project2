@@ -2,15 +2,13 @@ from bs4 import BeautifulSoup as bs
 import requests
 import csv23 as csv
 import os.path
+import json
 
 
 # Variables globales
 nameLinks_catego = []
 nameLinks_allpages = []
 namelinks_allbooks = []
-# Variable pour test unitaire
-url = 'https://books.toscrape.com/'
-listetest = [['mystery_3', 'https://books.toscrape.com/catalogue/category/books/mystery_3/page-2.html'], ['travel_2', 'https://books.toscrape.com/catalogue/category/books/travel_2/index.html']]
 
 
 # Récupère les URLs des catégories et le nom de la catégories associées dans nameLinks_catego
@@ -83,12 +81,12 @@ def urls_catego_livres(links_catego):
     global namelinks_allbooks
     exist = 'y'
     categooflink = 'Travel_2'
-    categooflinkPrec = ''
+    categooflinkprec = ''
     for i in range(len(links_catego)):
         link_catego = links_catego[i]
         link = link_catego[1]
         categooflink = link_catego[0]
-        if exist == 'y' or categooflink != categooflinkPrec:
+        if exist == 'y' or categooflink != categooflinkprec:
             # connection à la page contenant les données & récupération du code réponse de la page du produit et test
             response = requests.get(link)
             if response.ok:
@@ -107,44 +105,52 @@ def urls_catego_livres(links_catego):
                     del (link_livre_lst[:8])
                     links_catego[i] = ''.join(link_livre_lst)
                     # ajout dans la liste namelinks_allbooks de l'url des livres et de leur catégorie
-                    namelinks_allbooks.append([categooflink, ('https://books.toscrape.com/catalogue' + links_catego[i])])
-                    print('Il y a maintenant ',len(namelinks_allbooks) , ' URLs de books dans la liste')
+                    namelinks_allbooks.append([categooflink, ('https://books.toscrape.com/catalogue'+ links_catego[i])])
+                    print('Il y a maintenant ', len(namelinks_allbooks), ' URLs de books dans la liste')
             else:
                 print('XXX La page : ', link, 'n existe pas.')
                 exist = 'n'
-                categooflinkPrec = categooflink
+                categooflinkprec = categooflink
     print('4. La liste comporte maintenant les url(s) de :', len(namelinks_allbooks), 'book(s)')
     return namelinks_allbooks
 
 
 # fontion permettant d'envoyer nameLinks_allcatego ou namelinks_allbooks dans un csv pour controle
-def csv_creation(datas, nom_csv):
+'''def csv_creation(datas, nom_csv):
     # fonction de création d'un csv à partir des données retournées par info_livre(urlexo2)
     # Test si le fichier existe déjà rien ne sera fait
     if os.path.exists(nom_csv):
         print('Le fichier CSV n a pas été crée car il existe déjà un fichier du meme nom dans le répertoire')
     else:
-        with open(nom_csv, 'w') as CSV1livre:
-            writer = csv.writer(CSV1livre)
-            data = datas
-            writer.writerow(data)
-            CSV1livre.close()
+        with open(nom_csv, 'w') as CSV1link:
+            writer = csv.writer(CSV1link, delimiter='|')
+            for ligne in datas:
+                for i in range(len(ligne)):
+                    if isinstance(ligne[i], list):
+                        ligne[i] = json.dumps(ligne[i])
+                writer.writerow(ligne)
+        CSV1link.close()
         print('5. Un fichier csv a été créé dans le répertoire courant, il se nomme : ', nom_csv)
 
 
 # ------------------- Lancement du programme -----------------------------#
-if os.path.exists('nameLinks_allpages.csv'):
-    print('Le fichier nameLinks_allpages.csv existe déjà, veuillez le supprimer ou le renommer avant de relancer')
-    exit()
-else:
-    csv_creation(urls_catego_livres(recup_urlallpages(recup_catego(url))), 'nameLinks_allpages.csv')
+def csv_allurlsbooks(urlsite):
+    if os.path.exists('nameLinks_allpages.csv'):
+        print('Le fichier nameLinks_allpages.csv existe déjà, veuillez le supprimer ou le renommer avant de relancer')
+        exit()
+    else:
+        csv_creation(urls_catego_livres(recup_urlallpages(recup_catego(urlsite))), 'nameLinks_allpages.csv')'''
 
 
 # ---------------------- Test unitaires ----------------------------------#
+# url = 'https://books.toscrape.com/'
 # recup_catego(url)
 # recup_urlallpages(recup_catego(url))
-# urls_catego_livres(recup_urlallpages(recup_catego(url)), 'nameLinks_allpages.csv'))
+# urls_catego_livres(recup_urlallpages(recup_catego(url)))
 # csv_creation(urls_catego_livres(listetest),'nameLinks_allpages.csv')
 
-# ---------------------- Test fichier avec echantillon de données ----------------------------------#
+# ---------------------- Test fichier avec echantillon de données fournis un csv avec 23 entrées ----------------------#
+# Variable pour test unitaire
+# listetest = [['mystery_3', 'https://books.toscrape.com/catalogue/category/books/mystery_3/page-2.html'], ['travel_2', 'https://books.toscrape.com/catalogue/category/books/travel_2/index.html']]
 # csv_creation(urls_catego_livres(listetest), 'nameLinks_allpages.csv')
+
