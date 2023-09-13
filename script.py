@@ -8,9 +8,6 @@ nom_csv = 'fichier.csv'
 url = 'https://books.toscrape.com/'
 
 
-
-
-
 # pour chaque url de links_catego_livres j'execute upload.info_livre puius csv_creation et les données s'ajoute dans le même fichier csv
 def csv_datas_livresbycatego():
     liste = geturlsslist.namelinks_allbooks
