@@ -1,6 +1,8 @@
 from bs4 import BeautifulSoup as bs
 import requests
-import os.path
+# a decommenter pour test dans un csv
+# import os.path
+# import csv23 as csv
 
 # Variables globales
 nameLinks_catego = []
