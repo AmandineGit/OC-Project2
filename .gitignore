@@ -1,5 +1,5 @@
 #Ignore l'environnement .env
 .env
 
-
-
+#Ignore les fichiers csv et les r√pertoires
+*.csv
