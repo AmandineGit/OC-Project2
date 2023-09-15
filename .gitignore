@@ -1,9 +1,11 @@
 #Ignore l'environnement .env
-.env
-.env2
+env
+env2
 #ignore test.py
 test.py
 #Ignore les fichiers csv et les r�pertoires
 *.csv
 *.jpg
 *.zip
+#Ignore les paramètres Pycharm
+.idea/
