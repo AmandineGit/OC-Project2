@@ -1,6 +1,7 @@
 import os
 from bs4 import BeautifulSoup as bs
 import requests
+import re
 
 # Variables globales
 datas_content = []
@@ -45,6 +46,7 @@ def info_livre(urlexo2):
         catego = catego[2]
         catego = catego.find('a')
         catego = catego.text
+        catego = catego.replace(' ', '_')
         # print(catego)
 
         # récupération de review_rating
@@ -80,22 +82,24 @@ def upload_jpg(datas):
     url_jpg = datas[-1]
     upc = datas[1]
     title = datas[2]
+    title = title.replace(' ','_')
+    title = re.sub(r'\W+', '', title)
     category = datas[-3]
     path = os.getcwd()
     if not os.path.isdir(path + '/' + category + '/images-catego-' + category):
         os.mkdir(path + '/' + category + '/images-catego-' + category)
         print('Le répertoire ' + 'images-catego-' + category + 'a été crée.')
-    nom_jpg = path + '/' + category + '/images-catego-' + category + '/' + upc + '_' + upc + '.jpg'
+    nom_jpg = path + '/' + category + '/images-catego-' + category + '/' + upc + '_' + title + '.jpg'
     response = requests.get(url_jpg)
     open(nom_jpg, 'wb').write(response.content)
-    print('le fichier image du livre : ', title + 'a été enregistré.')
+    print('le fichier image du livre : ', title + ' a été enregistré.')
 
 
 # ---------------------- Test unitaires ----------------------------------#
 # -------------execution de info_livre avec une url
 # Variables globales de tests
 # nom_csv = 'catego_TestUpload.csv'
-# urlexo2 = 'https://books.toscrape.com/catalogue/sharp-objects_997/index.html'
+# urlexo2 = 'https://books.toscrape.com/catalogue/the-constant-princess-the-tudor-court-1_493/index.html'
 
 # print(upload_jpg(info_livre(urlexo2)))
 # print(datas_entete)

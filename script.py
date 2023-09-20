@@ -22,7 +22,7 @@ def csv_datas_livresbycatego():
     for line in range(len(liste)):
         listline = liste[line]
         catego = listline[0]
-        catego.replace(' ','_')
+        catego = catego.replace(' ','_')
         url_livre = listline[1]
         global nom_csv
         nom_csv = 'Links' + '_' + catego + '.csv'
